@@ -32,13 +32,13 @@ def load_data(sheets_url):
 def full_prompt(prompt, function, additional_info, input_text = "<ARTICLE>"):
     return f"{prompt}\n\nHere is information about me: {additional_info}\n\n.  Here is the article: {input_text}"
 
-@st.cache_data()
+@st.cache_data(ttl=60)
 def summarize_article(prompt, function, additional_info, input_text, model = "GPT 3.5"):
     print(f"Summarizing article: {input_text} with {prompt} and {additional_info}")
     fp = full_prompt(prompt, function, additional_info, input_text)
     if model == "GPT 3.5":
         # llm = OpenAI(temperature=0.7, openai_api_key=openai_api_key, model="gpt-3.5-turbo")
-        chat = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, model="gpt-3.5-turbo")
+        chat = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, model="gpt-3.5-turbo-16k")
     elif model == "GPT 4":
         chat = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, model="gpt-4")
     elif model == "Claude 2":

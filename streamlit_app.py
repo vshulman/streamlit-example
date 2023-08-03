@@ -68,6 +68,7 @@ BASE_MORE = "I am a senior engineer in at JPMorgan, a financial services company
 
 st.title('TLDR4ME')
 content = ''
+st.markdown("[Edit Articles / Function Fit](https://docs.google.com/spreadsheets/d/1GnAgAxrPD1KK_5m9pjnEXX7l4m5p1owHTSdRU96jvlQ/edit#gid=698226199)")
 articles = []
 # open all_articles_v2.json
 

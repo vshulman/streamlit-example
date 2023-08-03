@@ -84,7 +84,7 @@ df = load_data(st.secrets["public_gsheets_url"])
 function = st.sidebar.selectbox("Your Function", FUNCTIONS)
 additional_info = st.sidebar.text_area("More About You", key="more_details", value=BASE_MORE, height=200)
 st.sidebar.divider()
-model = st.sidebar.selectbox("Model", ["GPT 3.5", " GPT 4", "Claude 2"])
+model = st.sidebar.selectbox("Model", ["GPT 3.5", "GPT 4", "Claude 2"])
 prompt = st.sidebar.text_area("Summary Prompt", key="summary_prompt", value=BASE_PROMPT, height=275)
 clicked = st.sidebar.button("Generate Email")
 summaries = []
@@ -101,7 +101,7 @@ if clicked:
     # read all the relevant articles, pass each one into the summarize function, then add result to array and render it
     for index, row in df2.iterrows():
         st.echo(row['content'])
-        summary = summarize_article(prompt, function, additional_info, row['content'])
+        summary = summarize_article(prompt, function, additional_info, row['content'], model)
         summaries.append({"summary": summary, "title": row['title']})
         # content += "\n\n" + f"##{row['title']}\n {summary}"
 

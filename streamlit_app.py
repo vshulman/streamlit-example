@@ -23,7 +23,7 @@ import json
 openai_api_key = st.secrets["openai_api_key"]
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=60)
 def load_data(sheets_url):
     csv_url = sheets_url.replace("/edit#gid=", "/export?format=csv")
     return pd.read_csv(csv_url, on_bad_lines='skip')

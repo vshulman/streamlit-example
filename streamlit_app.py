@@ -3,6 +3,7 @@ import altair as alt
 import math
 import numpy as np
 import pandas as pd
+import json
 import streamlit as st
 from datetime import datetime
 # from langchain.llms import OpenAI, Anthropic
@@ -32,10 +33,14 @@ def load_data(sheets_url):
 def full_prompt(prompt, function, additional_info, input_text = "<ARTICLE>"):
     return f"{prompt}\n\nHere is information about me: {additional_info}\n\n.  Here is the article: {input_text}"
 
+def partial_prompt(function, additional_info, input_text = "<ARTICLE>"):
+    return f"Here is information about me: {additional_info}\n\n.  Here is the article: {input_text}"
+
 @st.cache_data(ttl=360)
 def summarize_article(prompt, function, additional_info, input_text, model = "GPT 3.5"):
     print(f"Summarizing article: {input_text} with {prompt} and {additional_info}")
     fp = full_prompt(prompt, function, additional_info, input_text)
+    pp = partial_prompt(function, additional_info, input_text)
     if model == "GPT 3.5":
         # llm = OpenAI(temperature=0.7, openai_api_key=openai_api_key, model="gpt-3.5-turbo")
         chat = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, model="gpt-3.5-turbo-16k")
@@ -46,12 +51,15 @@ def summarize_article(prompt, function, additional_info, input_text, model = "GP
 
     # summary = llm(fp) only works for davinci
     messages = [
-        # SystemMessage(
-        #     content=prompt
-        # ), 
+        SystemMessage(
+            content=prompt
+        ), 
         HumanMessage(
-            content = fp
+            content = pp
         )
+        # HumanMessage(
+        #     content = fp
+        # )
     ]
 
     summary = chat(messages)
@@ -97,12 +105,16 @@ st.dataframe(df2)
 
 if clicked:
     st.sidebar.caption(full_prompt(prompt, function, additional_info))
-    st.echo("You clicked the button")
     # read all the relevant articles, pass each one into the summarize function, then add result to array and render it
     for index, row in df2.iterrows():
-        st.echo(row['content'])
         summary = summarize_article(prompt, function, additional_info, row['content'], model)
-        summaries.append({"summary": summary, "title": row['title']})
+        print(summary)
+        # try to parse the summary as json, if it fails, just use the summary as is
+        try:
+            j = json.loads(summary)
+            summaries.append({"summary": j['summary'], "title": j['title']})
+        except json.JSONDecodeError:
+            summaries.append({"summary": summary, "title": row['title']})
         # content += "\n\n" + f"##{row['title']}\n {summary}"
 
 st.header('Email Preview')
@@ -116,7 +128,8 @@ if summaries:
         st.markdown("#### " + summary['title'])
 
         # in the content, remove the leading "You should read this because it" and capitalize the first letter
-        clean_summary = summary['summary'].replace("You should read this article because it", "").strip().capitalize()
+        text = summary['summary'].replace("You should read this article because it", "").strip()
+        clean_summary = text[0].upper() + text[1:]
         st.markdown(clean_summary)
 
 

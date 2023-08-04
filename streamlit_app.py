@@ -32,7 +32,7 @@ def load_data(sheets_url):
 def full_prompt(prompt, function, additional_info, input_text = "<ARTICLE>"):
     return f"{prompt}\n\nHere is information about me: {additional_info}\n\n.  Here is the article: {input_text}"
 
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=360)
 def summarize_article(prompt, function, additional_info, input_text, model = "GPT 3.5"):
     print(f"Summarizing article: {input_text} with {prompt} and {additional_info}")
     fp = full_prompt(prompt, function, additional_info, input_text)
@@ -114,7 +114,10 @@ if summaries:
     for summary in summaries:
 
         st.markdown("#### " + summary['title'])
-        st.markdown(summary['summary'])
+
+        # in the content, remove the leading "You should read this because it" and capitalize the first letter
+        clean_summary = summary['summary'].replace("You should read this article because it", "").strip().capitalize()
+        st.markdown(clean_summary)
 
 
 
